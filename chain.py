@@ -1,4 +1,4 @@
-from langchain.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import TencentVectorDB
 from langchain_community.vectorstores.tencentvectordb import ConnectionParams
 from langchain_text_splitters import CharacterTextSplitter
@@ -54,8 +54,8 @@ class RAG:
         t_vdb_embedding = "bge-base-zh"  # bge-base-zh is the default model
         embeddings = None
         conn_params = ConnectionParams(
-        url="http://lb*****q0.clb.ap-beijing.tencentclb.com:20000",
-        key="pM7S8fb*******fzg42cMxG26uWBBUrqkYvq",
+        url="http://gz-vdb-hall4gay.sql.tencentcdb.com:8100",
+        key="mw0HGppdr87iNikSQq90LqtMquxJgWTlbnBla2AY",
         username="root",
         timeout=100,
         )
@@ -123,8 +123,8 @@ class RAG:
         t_vdb_embedding = "bge-base-zh"  # bge-base-zh is the default model
         embeddings = None
         conn_params = ConnectionParams(
-        url="http://lb-j8f1s5bf-3yp****cq0.clb.ap-beijing.tencentclb.com:20000",
-        key="pM7S8fbZJOrDjBoIPbfzg42cMx*****G26uWBBUrqkYvq",
+        url="http://gz-vdb-hall4gay.sql.tencentcdb.com:8100",
+        key="mw0HGppdr87iNikSQq90LqtMquxJgWTlbnBla2AY",
         username="root",
         timeout=100,
         )

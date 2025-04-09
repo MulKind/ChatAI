@@ -9,10 +9,11 @@ import pymysql
 
 # 数据库连接  
 config = {  
-    'host': '***',  # 数据库主机地址  
-    'user': '***',  # 数据库用户名  
-    'password': '***',  # 数据库密码  
-    'db': '***',  # 数据库名  
+    'host': '192.168.0.220',  # 数据库主机地址
+    'user': 'root',  # 数据库用户名
+    'password': 'root',  # 数据库密码
+    'db': 'xiaoyou',  # 数据库名
+    'port': 8808,
     'charset': 'utf8mb4',  # 字符集 
     'cursorclass': pymysql.cursors.DictCursor  # 使用字典游标，使得查询结果以字典形式返回  
 }  
@@ -21,7 +22,7 @@ config = {
 # 建立数据库连接
   
 connection=pymysql.connect(**config)  # 使用**config将字典展开为关键字参数传递给connect函数  
-UPLOAD_FOLDER = 'D:/test'  
+UPLOAD_FOLDER = '/home/klind/桌面/ChatAI/UPLOAD_FOLDER'
 RAG=RAG()   
 login=login()
 app = Flask(__name__) 
@@ -50,8 +51,9 @@ def  send_verification_code() :
             print(f"找到手机号: {phone_numbers}")
             return jsonify({"code": 400, "error": "手机号已经注册过"}), 400
         else:
-           login.send_verification_code(phone_numbers)
-           return jsonify({"code": 200, "message": "验证码发送成功"}), 200
+            # login.send_verification_code(phone_numbers)
+            debug = login.send_verification_code(phone_numbers)
+            return jsonify({"code": 200, "message": "验证码发送成功", "Debug": str(debug)}), 200
      except Exception as e:
         return jsonify({"code": 500, "error": str(e)}), 500  
 
@@ -95,11 +97,12 @@ def login_login():
     if request.method == "POST":
         data = request.json
         
-        phone_numbers =  data.get("phone_numbers")
+        phone_number =  data.get("phone_numbers")
         password =  data.get("password")
         with connection.cursor() as cursor:
-            cursor.execute("select id,username,role,ctime,phone_numbers from login where phone_numbers=\""
-                           +str(phone_numbers)+"\" and password=\""+str(password)+"\"")
+            # cursor.execute("select id,username,role,ctime,phone_numbers from login where phone_numbers=\""
+            #                +str(phone_numbers)+"\" and password=\""+str(password)+"\"")
+            cursor.execute("select id,username,role,ctime,phone_numbers from login where phone_numbers = %s and password = %s", (phone_number, password))
             data = cursor.fetchone()
         if(data!=None):
             print("result:",data)
@@ -115,15 +118,23 @@ def login_update():
     if request.method == "POST":
         data = request.json
         phone_numbers = data.get("phone_numbers")        
-        password = data.get("password")
+        new_password = data.get("new_password")
+        old_password = data.get("old_password")
         try:
             with connection.cursor() as cursor:  
                 # 使用参数化查询来防止SQL注入  
-                sql = "UPDATE login SET password=%s WHERE phone_numbers=%s"  
-                cursor.execute(sql, (password, phone_numbers))  
-                connection.commit()  
-            print("update password successfully!")  
-            return jsonify({'code': '200', 'message': '修改密码成功!'}) 
+                sql = "UPDATE login SET password=%s WHERE phone_numbers=%s"
+                sql2 = "SELECT password FROM login WHERE phone_numbers=%s"
+                cursor.execute(sql2, phone_numbers)
+                aa = cursor.fetchone()
+                if old_password == aa['password']:
+                    cursor.execute(sql, (new_password, phone_numbers))
+                    connection.commit()
+                else:
+                    print("An error occurred")
+                    return jsonify({'code': '301', 'message': '旧密码错误'})
+            print("update password successfully!")
+            return jsonify({'code': '200', 'message': '修改密码成功!'})
         except Exception as e:
             print("update password failed:",e)
             connection.rollback() #发生错误就回滚
