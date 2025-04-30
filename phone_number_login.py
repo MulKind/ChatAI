@@ -43,21 +43,22 @@ class login:
     @staticmethod
     def send_verification_code(
         phone_numbers: str
-    ) -> None:
-        client = login.create_client()
+    ):
+        # client = login.create_client()
         verification_code = random.randint(1000, 9999)
-        send_sms_request = dysmsapi_20170525_models.SendSmsRequest(
-            phone_numbers =str(phone_numbers),
-            sign_name='小邮智慧学伴',
-            template_code='SMS_471285404',
-            template_param = f'{{"code":"{verification_code}"}}'
-        )
-        runtime = util_models.RuntimeOptions()
+        # send_sms_request = dysmsapi_20170525_models.SendSmsRequest(
+        #     phone_numbers =str(phone_numbers),
+        #     sign_name='小邮智慧学伴',
+        #     template_code='SMS_471285404',
+        #     template_param = f'{{"code":"{verification_code}"}}'
+        # )
+        # runtime = util_models.RuntimeOptions()
         try:
             # 复制代码运行请自行打印 API 的返回值
-            client.send_sms_with_options(send_sms_request, runtime)
+            # client.send_sms_with_options(send_sms_request, runtime)
             with shelve.open('verification_codes.db') as db:
                  db[phone_numbers] = {'code': verification_code, 'timestamp': datetime.now()}
+            return str(verification_code).encode("utf-8")
 
         except Exception as error:
             print(error)
@@ -70,7 +71,7 @@ class login:
             if phone_number in db:  
                 data = db[phone_number]  
                 # 检查验证码是否匹配且未过期（5分钟） 
-                # print(data['code']) 
+                print(data['code'])
                 # print(type(data['code']))
                 # print(data['timestamp'])
                 # print((datetime.now() - data['timestamp']).total_seconds())
